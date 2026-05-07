@@ -9,8 +9,10 @@ import repository.ShowtimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,14 +38,23 @@ public class AdminShowtimeController {
 
     @GetMapping("/create")
     public String createForm(Model model) {
-        model.addAttribute("showtime", new Showtime());
+        Showtime showtime = new Showtime();
+        showtime.setMovie(new model.entity.Movie());
+        showtime.setRoom(new model.entity.Room());
+        model.addAttribute("showtime", showtime);
         model.addAttribute("movies", movieRepository.findAll());
         model.addAttribute("rooms", roomRepository.findAll());
         return "admin/showtimes/form";
     }
 
     @PostMapping("/save")
-    public String saveShowtime(@ModelAttribute Showtime showtime, RedirectAttributes redirectAttributes) {
+    public String saveShowtime(@Valid @ModelAttribute("showtime") Showtime showtime, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("movies", movieRepository.findAll());
+            model.addAttribute("rooms", roomRepository.findAll());
+            return "admin/showtimes/form";
+        }
+
         Movie movie = movieRepository.findById(showtime.getMovie().getId()).orElseThrow();
         LocalDateTime newStart = showtime.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(movie.getDuration()).plusMinutes(15); // 15 mins for cleanup

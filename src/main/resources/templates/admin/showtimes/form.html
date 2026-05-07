@@ -27,7 +27,8 @@
             </div>
             <div class="mb-3">
                 <label>Thời gian bắt đầu</label>
-                <input type="datetime-local" class="form-control" th:field="*{startTime}" required />
+                <input type="datetime-local" class="form-control" th:classappend="${#fields.hasErrors('startTime')} ? 'is-invalid' : ''" th:field="*{startTime}" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
             </div>
             <button type="submit" class="btn btn-success">Lưu Suất Chiếu</button>
             <a th:href="@{/admin/showtimes}" class="btn btn-secondary">Hủy</a>
@@ -35,4 +36,3 @@
     </div>
 </body>
 </html>
-

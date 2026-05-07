@@ -6,10 +6,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
+import repository.BookingRepository;
 
 import repository.UserRepository;
 import model.entity.User;
 import model.entity.Role;
+import service.BookingService;
+import repository.MovieRepository;
 
 @Controller
 public class MainController {
@@ -20,8 +24,18 @@ public class MainController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private BookingService bookingService;
+
+    @Autowired
+    private MovieRepository movieRepository;
+
     @GetMapping("/")
     public String home(Model model) {
+        model.addAttribute("movies", movieRepository.findAll());
         return "index";
     }
     @GetMapping("/login")
@@ -65,7 +79,22 @@ public class MainController {
     }
 
     @GetMapping("/profile")
-    public String customerProfile() {
+    public String customerProfile(Model model, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName());
+        model.addAttribute("bookings", bookingRepository.findByUserIdOrderByBookingDateDesc(user.getId()));
+        model.addAttribute("user", user);
         return "profile";
+    }
+
+    @PostMapping("/booking/cancel")
+    public String cancelBooking(@RequestParam Long bookingId, Authentication authentication, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(authentication.getName());
+        try {
+            bookingService.cancelBooking(bookingId, user.getId());
+            redirectAttributes.addFlashAttribute("msgSuccess", "Đã hủy vé thành công và hoàn trả ghế!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msgError", e.getMessage());
+        }
+        return "redirect:/profile";
     }
 }

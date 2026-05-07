@@ -17,7 +17,8 @@
             <input type="hidden" th:field="*{id}" />
             <div class="mb-3">
                 <label class="form-label">Tên Phim</label>
-                <input type="text" class="form-control" th:field="*{title}" required />
+                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('title')} ? 'is-invalid' : ''" th:field="*{title}" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Thể loại</label>
@@ -27,15 +28,23 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Thời lượng (phút)</label>
-                <input type="number" class="form-control" th:field="*{duration}" required />
+                <input type="number" class="form-control" th:classappend="${#fields.hasErrors('duration')} ? 'is-invalid' : ''" th:field="*{duration}" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('duration')}" th:errors="*{duration}"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Ngày phát hành</label>
-                <input type="date" class="form-control" th:field="*{releaseDate}" />
+                <input type="date" class="form-control" th:classappend="${#fields.hasErrors('releaseDate')} ? 'is-invalid' : ''" th:field="*{releaseDate}" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('releaseDate')}" th:errors="*{releaseDate}"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Đường dẫn Poster (URL)</label>
+                <input type="text" class="form-control" th:classappend="${#fields.hasErrors('posterUrl')} ? 'is-invalid' : ''" th:field="*{posterUrl}" placeholder="https://example.com/poster.jpg" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('posterUrl')}" th:errors="*{posterUrl}"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Mô tả</label>
-                <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                <textarea class="form-control" th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''" th:field="*{description}" rows="3"></textarea>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
             </div>
             <button type="submit" class="btn btn-success">Lưu Phim</button>
             <a th:href="@{/admin/movies}" class="btn btn-secondary">Hủy</a>
@@ -43,4 +52,3 @@
     </div>
 </body>
 </html>
-

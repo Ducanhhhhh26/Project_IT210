@@ -42,41 +42,27 @@
             </div>
         </div>
         <h3 id="movies" class="mb-4 border-bottom pb-2 border-danger d-inline-block">Phim Đang Chiếu</h3>
-        <div class="row mt-3">
-            <!-- Mockup Dữ liệu Phim. Sau này load từ DB (CORE-04) -->
-            <div class="col-md-3 mb-4">
+
+        <!-- Hiển thị thông báo nếu mảng rỗng -->
+        <div th:if="${#lists.isEmpty(movies)}" class="alert alert-info">
+            Hiện tại chưa có bộ phim nào được cập nhật trên hệ thống.
+            <span sec:authorize="hasAuthority('ROLE_ADMIN')">
+                <a th:href="@{/admin/movies/create}" class="alert-link">Thêm phim ngay</a>.
+            </span>
+        </div>
+
+        <!-- Render phim lấy từ Database -->
+        <div class="row mt-3" th:unless="${#lists.isEmpty(movies)}">
+            <div class="col-md-3 mb-4" th:each="m : ${movies}">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 350px; font-size: 1.5rem;">
-                        Avenger Poster
+                        [Poster]
                     </div>
                     <div class="card-body text-center">
-                        <h5 class="card-title text-truncate">Avenger: Hồi kết</h5>
-                        <p class="card-text text-muted small">Hành động | 180 phút</p>
-                        <a href="#" class="btn btn-outline-primary w-100">🎟️ Chọn Suất Chiếu</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 350px; font-size: 1.5rem;">
-                        Inception Poster
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-truncate">Kẻ Đánh Cắp Giấc Mơ</h5>
-                        <p class="card-text text-muted small">Khóa học viễn tưởng | 148 phút</p>
-                        <a href="#" class="btn btn-outline-primary w-100">🎟️ Chọn Suất Chiếu</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 350px; font-size: 1.5rem;">
-                        Lat Mat 7 Poster
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="card-title text-truncate">Lật Mặt 7</h5>
-                        <p class="card-text text-muted small">Hài hước | 120 phút</p>
-                        <a href="#" class="btn btn-outline-primary w-100">🎟️ Chọn Suất Chiếu</a>
+                        <h5 class="card-title text-truncate" th:text="${m.title}">Tên phim</h5>
+                        <p class="card-text text-muted small" th:text="${m.genre != null ? m.genre.name : 'Unknown'} + ' | ' + ${m.duration} + ' phút'">Thể loại</p>
+                        <!-- CORE-08 link to view showtimes -->
+                        <a th:href="@{/movie/{id}/showtimes(id=${m.id})}" class="btn btn-outline-primary w-100">🎟️ Chọn Suất Chiếu</a>
                     </div>
                 </div>
             </div>

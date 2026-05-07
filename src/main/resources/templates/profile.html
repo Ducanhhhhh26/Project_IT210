@@ -46,26 +46,31 @@
                     <div class="card-body">
                         <p class="text-muted small">Danh sách các hóa đơn bạn đã đặt. Hệ thống cho phép hủy vé trước 24h (CORE-09).</p>
 
+                        <div th:if="${msgSuccess}" class="alert alert-success" th:text="${msgSuccess}"></div>
+                        <div th:if="${msgError}" class="alert alert-danger" th:text="${msgError}"></div>
+
                         <div class="list-group">
-                            <div class="list-group-item list-group-item-action mb-2 border rounded">
+                            <div th:each="b : ${bookings}" class="list-group-item list-group-item-action mb-2 border rounded">
                                 <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1 text-primary">Phim: Kẻ Đánh Cắp Giấc Mơ</h6>
-                                    <small class="text-success font-weight-bold">Đã Xong</small>
+                                    <h6 class="mb-1 text-primary" th:text="${'Phim: ' + (b.tickets.size() > 0 ? b.tickets[0].showtime.movie.title : 'N/A')}">Phim</h6>
+                                    <small th:class="${b.status != null and b.status.name() == 'CANCELLED' ? 'text-danger font-weight-bold' : 'text-success font-weight-bold'}" th:text="${b.status}">Trạng thái</small>
                                 </div>
-                                <p class="mb-1">Suất chiếu: <b>19:00 - 20/05/2026</b> | Phòng 03</p>
-                                <small>Ghế: J1, J2, J3 - Mã Đơn: #BKG999</small>
+                                <p class="mb-1">
+                                    Suất chiếu: <b th:text="${b.tickets.size() > 0 ? #temporals.format(b.tickets[0].showtime.startTime, 'dd/MM/yyyy HH:mm') : 'N/A'}"></b>
+                                    <span th:text="${b.tickets.size() > 0 ? ' | ' + b.tickets[0].showtime.room.name : ''}"></span>
+                                </p>
+                                <small>Số lượng ghế: <span th:text="${b.tickets.size()}"></span> - Mã đơn: #<span th:text="${b.id}"></span> - Tổng tiền: <b th:text="${b.totalPrice} + 'đ'"></b></small>
+
+                                <div class="mt-2 text-end" th:if="${b.status == null or b.status.name() != 'CANCELLED'}">
+                                    <form th:action="@{/booking/cancel}" method="post">
+                                        <input type="hidden" name="bookingId" th:value="${b.id}" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng và hoàn lại ghế? Khôn thể khôi phục!')">Hủy vé (Hoàn Slot)</button>
+                                    </form>
+                                </div>
                             </div>
 
-                            <div class="list-group-item list-group-item-action mb-2 border rounded">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1 text-primary">Phim: Lật Mặt 7</h6>
-                                    <small class="text-warning font-weight-bold">Sắp chiếu</small>
-                                </div>
-                                <p class="mb-1">Suất chiếu: <b>20:30 - 21/05/2026</b> | Phòng 01</p>
-                                <small>Ghế: A1, A2 - Mã Đơn: #BKG1001</small>
-                                <div class="mt-2 text-end">
-                                    <button class="btn btn-sm btn-outline-danger">Hủy vé (Hoàn Slot)</button>
-                                </div>
+                            <div th:if="${#lists.isEmpty(bookings)}" class="text-center p-3 text-muted">
+                                <em>Bạn chưa có lịch sử đặt vé nào.</em>
                             </div>
                         </div>
                     </div>

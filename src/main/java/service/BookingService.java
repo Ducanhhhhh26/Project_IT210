@@ -30,7 +30,6 @@ public class BookingService {
     public void createBooking(User user, Long showtimeId, List<Long> seatIds) throws Exception {
         Booking booking = new Booking();
         booking.setUser(user);
-        booking.setBookingDate(LocalDateTime.now());
 
         // Cần tạo enum BookingStatus nếu có, ví dụ status
         // booking.setStatus(BookingStatus.CONFIRMED);
@@ -53,5 +52,30 @@ public class BookingService {
             ticketRepository.save(ticket);
         }
     }
-}
 
+    @Transactional
+    public void cancelBooking(Long bookingId, Long expectedUserId) throws Exception {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new Exception("Không tìm thấy đơn hàng"));
+
+        if (!booking.getUser().getId().equals(expectedUserId)) {
+            throw new Exception("Không có quyền hủy vé này");
+        }
+        if (booking.getStatus() == model.entity.BookingStatus.CANCELLED) {
+            throw new Exception("Vé đã được hủy trước đó");
+        }
+
+        // Lấy suất chiếu từ tick đầu tiên (giả sử 1 booking = 1 suất chiếu)
+        if (booking.getTickets() != null && !booking.getTickets().isEmpty()) {
+            LocalDateTime startTime = booking.getTickets().get(0).getShowtime().getStartTime();
+            if (LocalDateTime.now().isAfter(startTime.minusHours(24))) {
+                throw new Exception("Chỉ có thể hủy vé trước 24h so với giờ chiếu");
+            }
+        }
+
+        booking.setStatus(model.entity.BookingStatus.CANCELLED);
+        bookingRepository.save(booking);
+
+        // Core 09: Giải phóng Slot bằng cách xóa chi tiết vé để người khác có thể đặt lại
+        ticketRepository.deleteAll(booking.getTickets());
+    }
+}
