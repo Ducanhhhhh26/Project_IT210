@@ -5,6 +5,7 @@
     <title>Admin Dashboard - Quản lý Rạp Phim</title>
     <!-- Dùng Bootstrap cho giao diện đẹp nhanh -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/scbs.css}" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-dark bg-dark text-white p-3">
@@ -46,7 +47,7 @@
                             <div class="col-sm-4">
                                 <div class="card text-center bg-light">
                                     <div class="card-body">
-                                        <h3 class="card-title text-success">15</h3>
+                                        <h3 class="card-title text-success" th:text="${movieCount}">0</h3>
                                         <p class="card-text">Phim đang chiếu</p>
                                     </div>
                                 </div>
@@ -54,7 +55,7 @@
                             <div class="col-sm-4">
                                 <div class="card text-center bg-light">
                                     <div class="card-body">
-                                        <h3 class="card-title text-info">120</h3>
+                                        <h3 class="card-title text-info" th:text="${todayShowtimeCount}">0</h3>
                                         <p class="card-text">Suất chiếu hôm nay</p>
                                     </div>
                                 </div>
@@ -62,8 +63,8 @@
                             <div class="col-sm-4">
                                 <div class="card text-center bg-light">
                                     <div class="card-body">
-                                        <h3 class="card-title text-warning">24.5M</h3>
-                                        <p class="card-text">Doanh thu dự kiến (VNĐ)</p>
+                                        <h3 class="card-title text-warning" th:text="${confirmedRevenue}">0 VND</h3>
+                                        <p class="card-text">Doanh thu đã xác nhận</p>
                                     </div>
                                 </div>
                             </div>

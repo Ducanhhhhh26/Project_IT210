@@ -1,21 +1,21 @@
 package controller;
 
 import model.entity.Movie;
-import model.entity.Showtime;
-import repository.MovieRepository;
-import repository.ShowtimeRepository;
-import repository.TicketRepository;
+import model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import repository.MovieRepository;
+import repository.UserRepository;
+import service.BookingService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 
 @Controller
 public class CustomerShowtimeController {
@@ -24,38 +24,42 @@ public class CustomerShowtimeController {
     private MovieRepository movieRepository;
 
     @Autowired
-    private ShowtimeRepository showtimeRepository;
+    private BookingService bookingService;
 
     @Autowired
-    private TicketRepository ticketRepository;
+    private UserRepository userRepository;
 
     @GetMapping("/movie/{id}/showtimes")
     public String viewShowtimes(@PathVariable Long id, Model model) {
-        Movie movie = movieRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Mã phim không hợp lệ"));
-
-        // CORE-08: Ẩn hoàn toàn nhưng suất chiếu quá giờ (Truy vấn currentTime)
-        List<Showtime> availableShowtimes = showtimeRepository.findAvailableShowtimes(id, LocalDateTime.now());
-
-        // CORE-08: Kiểm tra trạng thái Hết Vé (Sold out)
-        List<Map<String, Object>> showtimeList = new ArrayList<>();
-        for (Showtime st : availableShowtimes) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("showtime", st);
-
-            // Giả định có TicketRepository truy xuất List vé dựa vào showtimeId
-            long totalTicketsBooked = ticketRepository.findByShowtimeId(st.getId()).size();
-            long roomCapacity = st.getRoom().getCapacity(); // Lấy tổng ghế của phòng
-
-            boolean isSoldOut = totalTicketsBooked >= roomCapacity;
-            map.put("isSoldOut", isSoldOut);
-            map.put("availableSeats", roomCapacity - totalTicketsBooked);
-
-            showtimeList.add(map);
-        }
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Ma phim khong hop le"));
 
         model.addAttribute("movie", movie);
-        model.addAttribute("showtimeList", showtimeList);
+        model.addAttribute("showtimeList", bookingService.getAvailableShowtimes(id));
         return "customer/showtimes";
     }
-}
 
+    @GetMapping("/showtimes/{id}/seats")
+    public String viewSeats(@PathVariable Long id, Model model) throws Exception {
+        model.addAttribute("showtime", bookingService.getShowtime(id));
+        model.addAttribute("seats", bookingService.getSeatsForShowtime(id));
+        model.addAttribute("bookedSeatIds", bookingService.getBookedSeatIds(id));
+        return "customer/seats";
+    }
+
+    @PostMapping("/booking/create")
+    public String createBooking(@RequestParam Long showtimeId,
+                                @RequestParam(required = false) List<Long> seatIds,
+                                Authentication authentication,
+                                RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(authentication.getName());
+        try {
+            bookingService.createBooking(user, showtimeId, seatIds);
+            redirectAttributes.addFlashAttribute("msgSuccess", "Dat ve thanh cong.");
+            return "redirect:/profile";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msgError", e.getMessage());
+            return "redirect:/showtimes/" + showtimeId + "/seats";
+        }
+    }
+}

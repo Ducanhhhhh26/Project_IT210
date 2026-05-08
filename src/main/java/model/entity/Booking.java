@@ -42,6 +42,5 @@ public class Booking {
     public List<Ticket> getTickets() { return tickets; }
     public void setTickets(List<Ticket> tickets) { this.tickets = tickets; }
 
-    public void setBookingDate(LocalDateTime now) {
-    }
+    public void setBookingDate(LocalDateTime now) { this.createdAt = now; }
 }

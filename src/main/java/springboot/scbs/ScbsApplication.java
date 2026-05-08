@@ -1,22 +1,25 @@
 package springboot.scbs;
 
+import model.entity.Genre;
+import model.entity.Movie;
+import model.entity.Role;
+import model.entity.Room;
+import model.entity.Seat;
+import model.entity.User;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import repository.UserRepository;
 import repository.GenreRepository;
-import repository.RoomRepository;
 import repository.MovieRepository;
-import model.entity.User;
-import model.entity.Role;
-import model.entity.Genre;
-import model.entity.Room;
-import model.entity.Movie;
+import repository.RoomRepository;
+import repository.SeatRepository;
+import repository.UserRepository;
+
 import java.time.LocalDate;
 
 @SpringBootApplication
@@ -33,7 +36,8 @@ public class ScbsApplication {
                                       PasswordEncoder passwordEncoder,
                                       GenreRepository genreRepository,
                                       RoomRepository roomRepository,
-                                      MovieRepository movieRepository) {
+                                      MovieRepository movieRepository,
+                                      SeatRepository seatRepository) {
         return args -> {
             User admin = userRepository.findByUsername("admin");
             if (admin == null) {
@@ -61,31 +65,47 @@ public class ScbsApplication {
                 userRepository.save(staff);
             }
 
-            // CORE-04: Seed data cho Thể loại (Genre) và Phòng (Room)
             if (genreRepository.count() == 0) {
-                Genre g1 = new Genre(); g1.setName("Hành động"); genreRepository.save(g1);
-                Genre g2 = new Genre(); g2.setName("Hài hước"); genreRepository.save(g2);
-                Genre g3 = new Genre(); g3.setName("Tình cảm"); genreRepository.save(g3);
-                Genre g4 = new Genre(); g4.setName("Kinh dị"); genreRepository.save(g4);
-                Genre g5 = new Genre(); g5.setName("Viễn tưởng"); genreRepository.save(g5);
+                Genre g1 = new Genre(); g1.setName("Hanh dong"); genreRepository.save(g1);
+                Genre g2 = new Genre(); g2.setName("Hai huoc"); genreRepository.save(g2);
+                Genre g3 = new Genre(); g3.setName("Tinh cam"); genreRepository.save(g3);
+                Genre g4 = new Genre(); g4.setName("Kinh di"); genreRepository.save(g4);
+                Genre g5 = new Genre(); g5.setName("Vien tuong"); genreRepository.save(g5);
             }
 
             if (roomRepository.count() == 0) {
-                Room r1 = new Room(); r1.setName("Phòng 01"); r1.setCapacity(50); roomRepository.save(r1);
-                Room r2 = new Room(); r2.setName("Phòng 02 IMAX"); r2.setCapacity(80); roomRepository.save(r2);
-                Room r3 = new Room(); r3.setName("Phòng 03 3D"); r3.setCapacity(40); roomRepository.save(r3);
+                Room r1 = new Room(); r1.setName("Phong 01"); r1.setCapacity(50); roomRepository.save(r1);
+                Room r2 = new Room(); r2.setName("Phong 02 IMAX"); r2.setCapacity(80); roomRepository.save(r2);
+                Room r3 = new Room(); r3.setName("Phong 03 3D"); r3.setCapacity(40); roomRepository.save(r3);
             }
 
-            // Seed thêm 1 bộ phim mẫu để trang chủ không bị trống
+            if (seatRepository.count() == 0) {
+                for (Room room : roomRepository.findAll()) {
+                    for (int i = 1; i <= room.getCapacity(); i++) {
+                        Seat seat = new Seat();
+                        seat.setRoom(room);
+                        seat.setSeatName(toSeatName(i));
+                        seatRepository.save(seat);
+                    }
+                }
+            }
+
             if (movieRepository.count() == 0 && genreRepository.count() > 0) {
-                Movie m1 = new Movie();
-                m1.setTitle("Avenger: Hồi kết");
-                m1.setDescription("Phim hành động siêu anh hùng vĩ đại nhất.");
-                m1.setDuration(180);
-                m1.setReleaseDate(LocalDate.now());
-                m1.setGenre(genreRepository.findAll().get(0));
-                movieRepository.save(m1);
+                Movie movie = new Movie();
+                movie.setTitle("Avenger: Hoi ket");
+                movie.setDescription("Phim hanh dong sieu anh hung.");
+                movie.setDuration(180);
+                movie.setReleaseDate(LocalDate.now());
+                movie.setGenre(genreRepository.findAll().get(0));
+                movieRepository.save(movie);
             }
         };
+    }
+
+    private String toSeatName(int index) {
+        int zeroBased = index - 1;
+        char row = (char) ('A' + (zeroBased / 10));
+        int number = (zeroBased % 10) + 1;
+        return row + String.valueOf(number);
     }
 }
