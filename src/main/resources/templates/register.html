@@ -2,78 +2,162 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký - SCBS</title>
+    <title>Dang ky - SCBS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link th:href="@{/css/scbs.css}" rel="stylesheet">
 </head>
-<body class="bg-light">
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-4 mt-5">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white text-center py-3">
-                    <h4>🎬 Đăng Ký Tài Khoản</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div th:if="${error}" class="alert alert-danger small">
-                        <span th:text="${error}"></span>
-                    </div>
-
-                    <form th:action="@{/register}" method="post" class="needs-validation" novalidate>
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold" for="email">Địa chỉ Email</label>
-                            <input type="email" id="email" name="email" class="form-control" autocomplete="off" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" required>
-                            <div class="invalid-feedback">
-                                Vui lòng nhập đúng định dạng Email.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold" for="phone">Số điện thoại</label>
-                            <input type="tel" id="phone" name="phone" class="form-control" autocomplete="off" pattern="(84|0[3|5|7|8|9])+([0-9]{8})\b" required>
-                            <div class="invalid-feedback">
-                                Vui lòng nhập đúng định dạng số điện thoại Việt Nam (10 số).
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold" for="username">Tên đăng nhập</label>
-                            <input type="text" id="username" name="username" class="form-control" autocomplete="off" required>
-                            <div class="invalid-feedback">
-                                Tên đăng nhập không được để trống.
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-weight-bold" for="password">Mật khẩu</label>
-                            <input type="password" id="password" name="password" class="form-control" required>
-                            <div class="invalid-feedback">
-                                Mật khẩu không được để trống.
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100 mt-2">Đăng Ký</button>
-                    </form>
-                </div>
-            </div>
-            <div class="text-center mt-3 text-muted">
-                <small>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a></small>
-            </div>
+<body class="auth-page">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 cinema-navbar">
+    <div class="container">
+        <a class="navbar-brand font-weight-bold" th:href="@{/}">Smart<span>Cinema</span></a>
+        <div class="cinema-nav-links d-none d-lg-flex">
+            <a th:href="@{/}">Trang chủ</a>
+            <a th:href="@{/#movies}">Phim Đang chiếu</a>
+            <a th:href="@{/#movies}">Phim Sắp chiếu</a>
+        </div>
+        <div class="ms-auto d-flex align-items-center">
+            <a th:href="@{/login}" class="auth-nav-link me-3">Đăng nhập</a>
+            <a th:href="@{/register}" class="btn btn-primary btn-sm">Đăng ký</a>
         </div>
     </div>
-</div>
+</nav>
+
+<main class="auth-shell auth-shell-register">
+    <section class="auth-heading">
+        <div class="auth-icon">Film</div>
+        <h1>Tạo tài khoản</h1>
+    </section>
+
+
+    <section class="auth-card">
+        <div th:if="${error}" class="alert alert-danger small">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/register}" method="post" class="needs-validation" novalidate>
+            <div class="mb-3">
+                <label class="form-label" for="username">Ho va ten *</label>
+                <input type="text"
+                       id="username"
+                       name="username"
+                       class="form-control auth-input"
+                       placeholder="Nguyen Van A"
+                       autocomplete="off"
+                       required>
+                <div class="invalid-feedback">Ho va ten khong duoc de trong.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="email">Email *</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       class="form-control auth-input"
+                       placeholder="email@example.com"
+                       autocomplete="off"
+                       pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                       required>
+                <div class="invalid-feedback">Vui long nhap dung dinh dang email.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="phone">So dien thoai *</label>
+                <input type="tel"
+                       id="phone"
+                       name="phone"
+                       class="form-control auth-input"
+                       placeholder="0123456789"
+                       autocomplete="off"
+                       pattern="(84|0[3|5|7|8|9])+([0-9]{8})\b"
+                       required>
+                <div class="invalid-feedback">Vui long nhap dung so dien thoai Viet Nam.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="password">Mat khau *</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       class="form-control auth-input"
+                       placeholder="It nhat 6 ky tu"
+                       minlength="6"
+                       required>
+                <div class="invalid-feedback">Mat khau can it nhat 6 ky tu.</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="confirmPassword">Xac nhan mat khau *</label>
+                <input type="password"
+                       id="confirmPassword"
+                       class="form-control auth-input"
+                       placeholder="Nhap lai mat khau"
+                       minlength="6"
+                       required>
+                <div class="invalid-feedback">Vui long xac nhan mat khau.</div>
+            </div>
+
+            <label class="auth-check auth-terms">
+                <input type="checkbox" required>
+                <span>Toi dong y voi <a href="#">Dieu khoan dich vu</a> va <a href="#">Chinh sach bao mat</a></span>
+            </label>
+
+            <div class="invalid-feedback password-match-message d-none">
+                Mat khau xac nhan khong khop.
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 auth-submit">Dang ky ngay</button>
+
+            <p class="auth-switch">
+                Da co tai khoan?
+                <a th:href="@{/login}">Dang nhap</a>
+            </p>
+        </form>
+    </section>
+</main>
 
 <script>
     (function () {
-        'use strict'
-        var forms = document.querySelectorAll('.needs-validation')
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
         Array.prototype.slice.call(forms).forEach(function (form) {
             form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
+                var password = document.getElementById('password');
+                var confirmPassword = document.getElementById('confirmPassword');
+                var message = document.querySelector('.password-match-message');
+                var passwordsMatch = password.value === confirmPassword.value;
+
+                confirmPassword.setCustomValidity(passwordsMatch ? '' : 'Passwords do not match');
+                if (message) {
+                    message.classList.toggle('d-none', passwordsMatch);
                 }
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
+
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+
+        var passwordInput = document.getElementById('password');
+        var confirmPasswordInput = document.getElementById('confirmPassword');
+        var passwordMessage = document.querySelector('.password-match-message');
+
+        function syncPasswordMessage() {
+            if (!passwordInput || !confirmPasswordInput || !passwordMessage) {
+                return;
+            }
+            var hasValue = confirmPasswordInput.value.length > 0;
+            var match = passwordInput.value === confirmPasswordInput.value;
+            confirmPasswordInput.setCustomValidity(!hasValue || match ? '' : 'Passwords do not match');
+            passwordMessage.classList.toggle('d-none', !hasValue || match);
+        }
+
+        if (passwordInput && confirmPasswordInput) {
+            passwordInput.addEventListener('input', syncPasswordMessage);
+            confirmPasswordInput.addEventListener('input', syncPasswordMessage);
+        }
+    })();
 </script>
 </body>
 </html>

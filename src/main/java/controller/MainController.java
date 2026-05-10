@@ -13,6 +13,7 @@ import model.entity.Role;
 import service.BookingService;
 import model.entity.BookingStatus;
 import repository.BookingRepository;
+import repository.GenreRepository;
 import repository.MovieRepository;
 import repository.ShowtimeRepository;
 
@@ -38,6 +39,9 @@ public class MainController {
     private MovieRepository movieRepository;
 
     @Autowired
+    private GenreRepository genreRepository;
+
+    @Autowired
     private ShowtimeRepository showtimeRepository;
 
     @Autowired
@@ -46,6 +50,7 @@ public class MainController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("movies", movieRepository.findAll());
+        model.addAttribute("genres", genreRepository.findAll());
         return "index";
     }
     @GetMapping("/login")
@@ -72,6 +77,7 @@ public class MainController {
         user.setEmail(email);
         user.setPhone(phone);
         user.setUsername(username);
+        user.setFullName(username);
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(Role.CUSTOMER);
         userRepository.save(user);
