@@ -19,4 +19,10 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
 
     @Query("SELECT s FROM Showtime s WHERE s.movie.id = :movieId AND s.startTime > :currentTime ORDER BY s.startTime ASC")
     List<Showtime> findAvailableShowtimes(@Param("movieId") Long movieId, @Param("currentTime") LocalDateTime currentTime);
+
+    @Query("SELECT s.movie.id, COUNT(s.id) " +
+            "FROM Showtime s " +
+            "WHERE s.startTime > :currentTime " +
+            "GROUP BY s.movie.id")
+    List<Object[]> countUpcomingShowtimesByMovie(@Param("currentTime") LocalDateTime currentTime);
 }

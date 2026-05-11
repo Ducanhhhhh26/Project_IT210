@@ -7,6 +7,7 @@ import model.entity.Showtime;
 import model.entity.Ticket;
 import model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import repository.BookingRepository;
@@ -17,6 +18,7 @@ import repository.TicketRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +40,7 @@ public class BookingService {
     private SeatRepository seatRepository;
 
     @Transactional
-    public void createBooking(User user, Long showtimeId, List<Long> seatIds) throws Exception {
+    public Booking createBooking(User user, Long showtimeId, List<Long> seatIds) throws Exception {
         if (seatIds == null || seatIds.isEmpty()) {
             throw new Exception("Vui long chon it nhat 1 ghe.");
         }
@@ -52,7 +54,7 @@ public class BookingService {
 
         Booking booking = new Booking();
         booking.setUser(user);
-        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setStatus(BookingStatus.PENDING);
         booking.setTotalPrice(TICKET_PRICE.multiply(BigDecimal.valueOf(seatIds.size())));
         bookingRepository.save(booking);
 
@@ -75,6 +77,33 @@ public class BookingService {
             ticket.setPrice(TICKET_PRICE);
             ticketRepository.save(ticket);
         }
+
+        return booking;
+    }
+
+    @Transactional(readOnly = true)
+    public Booking getBookingForUser(Long bookingId, Long userId) throws Exception {
+        Booking booking = bookingRepository.findByIdWithTickets(bookingId);
+        if (booking == null) {
+            throw new Exception("Khong tim thay don hang");
+        }
+        if (!booking.getUser().getId().equals(userId)) {
+            throw new Exception("Ban khong co quyen truy cap don hang nay");
+        }
+        return booking;
+    }
+
+    @Transactional
+    public void confirmPayment(Long bookingId, Long userId) throws Exception {
+        Booking booking = getBookingForUser(bookingId, userId);
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new Exception("Don hang da bi huy");
+        }
+        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+            return;
+        }
+        booking.setStatus(BookingStatus.CONFIRMED);
+        bookingRepository.save(booking);
     }
 
     @Transactional(readOnly = true)
@@ -139,6 +168,52 @@ public class BookingService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
+    }
+
+    @Transactional(readOnly = true)
+    public Booking getBookingForStaffByCode(String bookingCode) throws Exception {
+        Long bookingId = parseBookingCode(bookingCode);
+        Booking booking = bookingRepository.findByIdWithTickets(bookingId);
+        if (booking == null) {
+            throw new Exception("Khong tim thay don hang voi ma " + bookingCode);
+        }
+        return booking;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Booking> getRecentBookingsForStaff(int limit) {
+        if (limit <= 0) {
+            return Collections.emptyList();
+        }
+        List<Long> ids = bookingRepository.findRecentBookingIds(PageRequest.of(0, limit));
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return bookingRepository.findByIdsWithTicketsOrderByCreatedAtDesc(ids);
+    }
+
+    public String toBookingCode(Long bookingId) {
+        if (bookingId == null) {
+            return "N/A";
+        }
+        return String.format("BKG-%06d", bookingId);
+    }
+
+    private Long parseBookingCode(String rawCode) throws Exception {
+        if (rawCode == null || rawCode.trim().isEmpty()) {
+            throw new Exception("Vui long nhap ma don hang");
+        }
+
+        String normalized = rawCode.trim().toUpperCase();
+        if (normalized.startsWith("BKG-")) {
+            normalized = normalized.substring(4);
+        }
+
+        if (!normalized.matches("\\d+")) {
+            throw new Exception("Ma don hang khong hop le. Dinh dang dung: BKG-000123");
+        }
+
+        return Long.parseLong(normalized);
     }
 
     private BookingHistoryItem toHistoryItem(Booking booking) {

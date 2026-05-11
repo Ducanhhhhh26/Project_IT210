@@ -1,9 +1,13 @@
 package controller;
+import jakarta.validation.Valid;
+import model.dto.ProfileUpdateForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.Authentication;
@@ -12,6 +16,7 @@ import model.entity.User;
 import model.entity.Role;
 import service.BookingService;
 import model.entity.BookingStatus;
+import model.entity.Booking;
 import repository.BookingRepository;
 import repository.GenreRepository;
 import repository.MovieRepository;
@@ -21,7 +26,10 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @Controller
 public class MainController {
@@ -49,7 +57,16 @@ public class MainController {
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("movies", movieRepository.findAll());
+        List<model.entity.Movie> movies = movieRepository.findAll();
+        Map<Long, Long> upcomingShowtimeCountByMovie = new HashMap<>();
+        for (Object[] row : showtimeRepository.countUpcomingShowtimesByMovie(LocalDateTime.now())) {
+            Long movieId = (Long) row[0];
+            Long count = (Long) row[1];
+            upcomingShowtimeCountByMovie.put(movieId, count);
+        }
+
+        model.addAttribute("movies", movies);
+        model.addAttribute("upcomingShowtimeCountByMovie", upcomingShowtimeCountByMovie);
         model.addAttribute("genres", genreRepository.findAll());
         return "index";
     }
@@ -98,13 +115,27 @@ public class MainController {
     }
 
     @GetMapping("/staff/dashboard")
-    public String staffDashboard() {
+    public String staffDashboard(@RequestParam(required = false) String bookingCode, Model model) {
+        model.addAttribute("recentBookings", bookingService.getRecentBookingsForStaff(10));
+
+        if (bookingCode != null && !bookingCode.trim().isEmpty()) {
+            model.addAttribute("searchedCode", bookingCode.trim());
+            try {
+                Booking foundBooking = bookingService.getBookingForStaffByCode(bookingCode);
+                model.addAttribute("foundBooking", foundBooking);
+                model.addAttribute("msgSuccess", "Da tim thay don hang.");
+            } catch (Exception e) {
+                model.addAttribute("msgError", e.getMessage());
+            }
+        }
+
         return "staff/dashboard";
     }
 
     private String formatVnd(BigDecimal amount) {
         BigDecimal safeAmount = amount == null ? BigDecimal.ZERO : amount;
         NumberFormat formatter = NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        formatter.setMaximumFractionDigits(0);
         return formatter.format(safeAmount) + " VND";
     }
 
@@ -113,6 +144,37 @@ public class MainController {
         User user = userRepository.findByEmail(authentication.getName());
         model.addAttribute("bookings", bookingService.getBookingHistory(user.getId()));
         model.addAttribute("user", user);
+        if (!model.containsAttribute("profileForm")) {
+            ProfileUpdateForm profileForm = new ProfileUpdateForm();
+            profileForm.setFullName(user.getFullName());
+            profileForm.setPhone(user.getPhone());
+            model.addAttribute("profileForm", profileForm);
+        }
+        return "profile";
+    }
+
+    @PostMapping("/profile/update")
+    public String updateProfile(@Valid @ModelAttribute("profileForm") ProfileUpdateForm profileForm,
+                                BindingResult bindingResult,
+                                Authentication authentication,
+                                Model model) {
+        User user = userRepository.findByEmail(authentication.getName());
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("bookings", bookingService.getBookingHistory(user.getId()));
+            model.addAttribute("user", user);
+            model.addAttribute("msgError", "Vui lòng kiểm tra lại thông tin.");
+            return "profile";
+        }
+
+        user.setFullName(profileForm.getFullName().trim());
+        String normalizedPhone = profileForm.getPhone() == null ? "" : profileForm.getPhone().trim();
+        user.setPhone(normalizedPhone.isEmpty() ? null : normalizedPhone);
+        userRepository.save(user);
+
+        model.addAttribute("bookings", bookingService.getBookingHistory(user.getId()));
+        model.addAttribute("user", user);
+        model.addAttribute("msgSuccess", "Cập nhật hồ sơ thành công.");
+        model.addAttribute("profileForm", profileForm);
         return "profile";
     }
 

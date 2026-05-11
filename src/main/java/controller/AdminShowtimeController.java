@@ -58,6 +58,7 @@ public class AdminShowtimeController {
         Movie movie = movieRepository.findById(showtime.getMovie().getId()).orElseThrow();
         LocalDateTime newStart = showtime.getStartTime();
         LocalDateTime newEnd = newStart.plusMinutes(movie.getDuration()).plusMinutes(15); // 15 mins for cleanup
+        showtime.setEndTime(newEnd);
 
         LocalDateTime startOfDay = newStart.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusSeconds(1);
@@ -68,7 +69,7 @@ public class AdminShowtimeController {
             if (existing.getId() != null && existing.getId().equals(showtime.getId())) continue;
 
             LocalDateTime existStart = existing.getStartTime();
-            LocalDateTime existEnd = existStart.plusMinutes(existing.getMovie().getDuration()).plusMinutes(15);
+            LocalDateTime existEnd = existing.getEndTime() != null ? existing.getEndTime() : existStart.plusMinutes(existing.getMovie().getDuration()).plusMinutes(15);
 
             if (newStart.isBefore(existEnd) && newEnd.isAfter(existStart)) {
                 redirectAttributes.addFlashAttribute("error", "Lịch chiếu trùng lặp với phim: " + existing.getMovie().getTitle() + " (" + existStart + ")");

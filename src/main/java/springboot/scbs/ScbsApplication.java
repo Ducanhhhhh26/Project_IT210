@@ -43,35 +43,105 @@ public class ScbsApplication {
             if (admin == null) {
                 admin = new User();
                 admin.setUsername("admin");
+                admin.setFullName("Administrator");
                 admin.setEmail("admin@gmail.com");
                 admin.setPassword(passwordEncoder.encode("123456"));
                 admin.setRole(Role.ADMIN);
                 userRepository.save(admin);
-            } else if (admin.getEmail() == null || admin.getEmail().isEmpty()) {
-                admin.setEmail("admin@gmail.com");
-                userRepository.save(admin);
+            } else {
+                boolean adminChanged = false;
+                if (admin.getFullName() == null || admin.getFullName().isEmpty()) {
+                    admin.setFullName("Administrator");
+                    adminChanged = true;
+                }
+                if (admin.getEmail() == null || admin.getEmail().isEmpty() || !"admin@gmail.com".equalsIgnoreCase(admin.getEmail())) {
+                    admin.setEmail("admin@gmail.com");
+                    adminChanged = true;
+                }
+                if (admin.getRole() != Role.ADMIN) {
+                    admin.setRole(Role.ADMIN);
+                    adminChanged = true;
+                }
+                if (admin.getPassword() == null || !passwordEncoder.matches("123456", admin.getPassword())) {
+                    admin.setPassword(passwordEncoder.encode("123456"));
+                    adminChanged = true;
+                }
+                if (adminChanged) {
+                    userRepository.save(admin);
+                }
             }
 
             User staff = userRepository.findByUsername("staff");
             if (staff == null) {
                 staff = new User();
                 staff.setUsername("staff");
+                staff.setFullName("Staff Account");
                 staff.setEmail("staff@gmail.com");
                 staff.setPassword(passwordEncoder.encode("123456"));
                 staff.setRole(Role.STAFF);
                 userRepository.save(staff);
-            } else if (staff.getEmail() == null || staff.getEmail().isEmpty()) {
-                staff.setEmail("staff@gmail.com");
-                userRepository.save(staff);
+            } else {
+                boolean staffChanged = false;
+                if (staff.getFullName() == null || staff.getFullName().isEmpty()) {
+                    staff.setFullName("Staff Account");
+                    staffChanged = true;
+                }
+                if (staff.getEmail() == null || staff.getEmail().isEmpty() || !"staff@gmail.com".equalsIgnoreCase(staff.getEmail())) {
+                    staff.setEmail("staff@gmail.com");
+                    staffChanged = true;
+                }
+                if (staff.getRole() != Role.STAFF) {
+                    staff.setRole(Role.STAFF);
+                    staffChanged = true;
+                }
+                if (staff.getPassword() == null || !passwordEncoder.matches("123456", staff.getPassword())) {
+                    staff.setPassword(passwordEncoder.encode("123456"));
+                    staffChanged = true;
+                }
+                if (staffChanged) {
+                    userRepository.save(staff);
+                }
             }
 
-            Genre action = getOrCreateGenre(genreRepository, "Hanh dong");
-            Genre comedy = getOrCreateGenre(genreRepository, "Hai huoc");
-            Genre romance = getOrCreateGenre(genreRepository, "Tinh cam");
-            Genre horror = getOrCreateGenre(genreRepository, "Kinh di");
-            Genre sciFi = getOrCreateGenre(genreRepository, "Vien tuong");
-            Genre adventure = getOrCreateGenre(genreRepository, "Phieu luu");
-            Genre animation = getOrCreateGenre(genreRepository, "Hoat hinh");
+            User customer = userRepository.findByUsername("customer");
+            if (customer == null) {
+                customer = new User();
+                customer.setUsername("customer");
+                customer.setFullName("Customer Account");
+                customer.setEmail("customer@gmail.com");
+                customer.setPassword(passwordEncoder.encode("123456"));
+                customer.setRole(Role.CUSTOMER);
+                userRepository.save(customer);
+            } else {
+                boolean customerChanged = false;
+                if (customer.getFullName() == null || customer.getFullName().isEmpty()) {
+                    customer.setFullName("Customer Account");
+                    customerChanged = true;
+                }
+                if (customer.getEmail() == null || customer.getEmail().isEmpty() || !"customer@gmail.com".equalsIgnoreCase(customer.getEmail())) {
+                    customer.setEmail("customer@gmail.com");
+                    customerChanged = true;
+                }
+                if (customer.getRole() != Role.CUSTOMER) {
+                    customer.setRole(Role.CUSTOMER);
+                    customerChanged = true;
+                }
+                if (customer.getPassword() == null || !passwordEncoder.matches("123456", customer.getPassword())) {
+                    customer.setPassword(passwordEncoder.encode("123456"));
+                    customerChanged = true;
+                }
+                if (customerChanged) {
+                    userRepository.save(customer);
+                }
+            }
+
+            Genre action = getOrCreateGenre(genreRepository, "Hành động", "Hanh dong");
+            Genre comedy = getOrCreateGenre(genreRepository, "Hài hước", "Hai huoc");
+            Genre romance = getOrCreateGenre(genreRepository, "Tình cảm", "Tinh cam");
+            Genre horror = getOrCreateGenre(genreRepository, "Kinh dị", "Kinh di");
+            Genre sciFi = getOrCreateGenre(genreRepository, "Viễn tưởng", "Vien tuong");
+            Genre adventure = getOrCreateGenre(genreRepository, "Phiêu lưu", "Phieu luu");
+            Genre animation = getOrCreateGenre(genreRepository, "Hoạt hình", "Hoat hinh");
 
             if (roomRepository.count() == 0) {
                 Room r1 = new Room(); r1.setName("Phong 01"); r1.setCapacity(50); roomRepository.save(r1);
@@ -82,9 +152,11 @@ public class ScbsApplication {
             if (seatRepository.count() == 0) {
                 for (Room room : roomRepository.findAll()) {
                     for (int i = 1; i <= room.getCapacity(); i++) {
+                        String seatName = toSeatName(i);
                         Seat seat = new Seat();
                         seat.setRoom(room);
-                        seat.setSeatName(toSeatName(i));
+                        seat.setSeatName(seatName);
+                        seat.setRowName(String.valueOf(seatName.charAt(0)));
                         seatRepository.save(seat);
                     }
                 }
@@ -103,13 +175,20 @@ public class ScbsApplication {
         };
     }
 
-    private Genre getOrCreateGenre(GenreRepository genreRepository, String name) {
-        Genre genre = genreRepository.findByName(name);
+    private Genre getOrCreateGenre(GenreRepository genreRepository, String displayName, String legacyName) {
+        Genre genre = genreRepository.findByName(displayName);
         if (genre != null) {
             return genre;
         }
+
+        Genre legacyGenre = genreRepository.findByName(legacyName);
+        if (legacyGenre != null) {
+            legacyGenre.setName(displayName);
+            return genreRepository.save(legacyGenre);
+        }
+
         genre = new Genre();
-        genre.setName(name);
+        genre.setName(displayName);
         return genreRepository.save(genre);
     }
 

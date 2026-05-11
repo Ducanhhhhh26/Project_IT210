@@ -36,7 +36,7 @@
 
         <form th:action="@{/register}" method="post" class="needs-validation" novalidate>
             <div class="mb-3">
-                <label class="form-label" for="username">Ho va ten *</label>
+                <label class="form-label" for="username">Họ và tên *</label>
                 <input type="text"
                        id="username"
                        name="username"
@@ -44,7 +44,7 @@
                        placeholder="Nguyen Van A"
                        autocomplete="off"
                        required>
-                <div class="invalid-feedback">Ho va ten khong duoc de trong.</div>
+                <div class="invalid-feedback">Họ và tên không được để trống.</div>
             </div>
 
             <div class="mb-3">
@@ -57,7 +57,7 @@
                        autocomplete="off"
                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
                        required>
-                <div class="invalid-feedback">Vui long nhap dung dinh dang email.</div>
+                <div class="invalid-feedback">Vui lòng nhập đúng định dạng email.</div>
             </div>
 
             <div class="mb-3">

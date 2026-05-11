@@ -1,6 +1,7 @@
 package controller;
 
 import model.entity.Movie;
+import model.entity.Booking;
 import model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -54,12 +55,41 @@ public class CustomerShowtimeController {
                                 RedirectAttributes redirectAttributes) {
         User user = userRepository.findByEmail(authentication.getName());
         try {
-            bookingService.createBooking(user, showtimeId, seatIds);
-            redirectAttributes.addFlashAttribute("msgSuccess", "Dat ve thanh cong.");
-            return "redirect:/profile";
+            Booking booking = bookingService.createBooking(user, showtimeId, seatIds);
+            return "redirect:/booking/" + booking.getId() + "/payment";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("msgError", e.getMessage());
             return "redirect:/showtimes/" + showtimeId + "/seats";
         }
+    }
+
+    @GetMapping("/booking/{id}/payment")
+    public String paymentPage(@PathVariable Long id,
+                              Authentication authentication,
+                              Model model,
+                              RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(authentication.getName());
+        try {
+            model.addAttribute("booking", bookingService.getBookingForUser(id, user.getId()));
+            return "customer/payment";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msgError", e.getMessage());
+            return "redirect:/profile";
+        }
+    }
+
+    @PostMapping("/booking/{id}/payment/confirm")
+    public String confirmPayment(@PathVariable Long id,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        User user = userRepository.findByEmail(authentication.getName());
+        try {
+            bookingService.confirmPayment(id, user.getId());
+            redirectAttributes.addFlashAttribute("msgSuccess", "Thanh toan thanh cong. Ve da duoc xac nhan.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("msgError", e.getMessage());
+            return "redirect:/booking/" + id + "/payment";
+        }
+        return "redirect:/profile";
     }
 }

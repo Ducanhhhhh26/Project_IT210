@@ -387,11 +387,14 @@ h3 {
 .movie-poster-wrap {
     position: relative;
     overflow: hidden;
+    aspect-ratio: 2 / 3;
     border-radius: 8px;
 }
 
 .home-page .movie-poster,
 .home-page .movie-poster-placeholder {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     border-radius: 8px;
     background: #181a22;
@@ -399,8 +402,36 @@ h3 {
 }
 
 .home-page .movie-poster {
-    object-fit: cover;
+    object-fit: contain;
     transition: filter 180ms ease, transform 180ms ease;
+}
+
+.movie-showtime-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 0 0.55rem;
+    border-radius: 7px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    backdrop-filter: blur(2px);
+}
+
+.movie-showtime-badge-active {
+    color: #dcfce7;
+    border: 1px solid rgba(34, 197, 94, 0.6);
+    background: rgba(21, 128, 61, 0.78);
+}
+
+.movie-showtime-badge-inactive {
+    color: #e5e7eb;
+    border: 1px solid rgba(148, 163, 184, 0.5);
+    background: rgba(31, 41, 55, 0.78);
 }
 
 .movie-poster-wrap::after {
@@ -918,6 +949,92 @@ h3 {
 
 .profile-page .text-muted {
     color: #98a2b3 !important;
+}
+
+.booking-page {
+    min-height: 100vh;
+    color: #f8fafc;
+    background: #07080b;
+}
+
+.booking-page .cinema-navbar {
+    background: #08090d !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+}
+
+.booking-page .navbar-brand {
+    color: #fff;
+    font-size: 1.35rem;
+}
+
+.booking-page .navbar-brand span {
+    color: #ef1d2f;
+}
+
+.booking-shell {
+    padding-top: 2rem;
+    padding-bottom: 2.25rem;
+}
+
+.booking-heading,
+.booking-page h3,
+.booking-page h4,
+.booking-page h5 {
+    color: #f8fafc;
+}
+
+.booking-page .booking-meta {
+    color: #98a2b3;
+}
+
+.booking-card {
+    border: 1px solid #2d3039 !important;
+    border-radius: 12px;
+    background: #14161d;
+    box-shadow: none;
+}
+
+.booking-card .card-body {
+    color: #e2e8f0;
+    background: #14161d;
+}
+
+.booking-card-soldout {
+    border-color: #7f1d1d !important;
+    background: #1a1518;
+}
+
+.booking-card-soldout .card-body {
+    background: #1a1518;
+}
+
+.booking-link {
+    color: #ff5163;
+    text-decoration: none;
+}
+
+.booking-link:hover {
+    color: #fff;
+}
+
+.booking-page .booking-screen {
+    color: #f8fafc;
+    border: 0;
+    background: linear-gradient(135deg, #111217, #343947);
+    box-shadow: inset 0 -8px 18px rgba(255, 255, 255, 0.06);
+}
+
+.booking-page .alert-danger {
+    color: #fecaca;
+    border-color: #7f1d1d;
+    background: #2a1619;
+}
+
+.booking-page .booking-alert {
+    color: #fde68a;
+    border-color: #713f12;
+    background: #2b2412;
 }
 
 @media (max-width: 575.98px) {

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh toán - SCBS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/scbs.css}" rel="stylesheet">
+</head>
+<body class="booking-page">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3 cinema-navbar">
+    <div class="container">
+        <a class="navbar-brand font-weight-bold" href="/">Smart<span>Cinema</span></a>
+    </div>
+</nav>
+
+<main class="container booking-shell">
+    <div class="row justify-content-center">
+        <section class="col-lg-8">
+            <div class="card booking-card">
+                <div class="card-header">
+                    <h5 class="mb-0">Thanh toán đơn vé #<span th:text="${booking.id}"></span></h5>
+                </div>
+                <div class="card-body">
+                    <p class="booking-meta mb-2">
+                        Mã đơn hàng:
+                        <b th:text="${@bookingService.toBookingCode(booking.id)}"></b>
+                    </p>
+                    <p class="booking-meta mb-2">
+                        Trạng thái:
+                        <b th:text="${booking.status}"></b>
+                    </p>
+                    <p class="mb-2">
+                        Phim:
+                        <b th:text="${booking.tickets[0].showtime.movie.title}"></b>
+                    </p>
+                    <p class="mb-2">
+                        Suất chiếu:
+                        <b th:text="${#temporals.format(booking.tickets[0].showtime.startTime, 'dd/MM/yyyy HH:mm')}"></b>
+                        <span th:text="${' | ' + booking.tickets[0].showtime.room.name}"></span>
+                    </p>
+                    <p class="mb-2">
+                        Ghế:
+                        <b th:text="${#strings.listJoin(booking.tickets.![seat.seatName], ', ')}"></b>
+                    </p>
+                    <p class="mb-3">
+                        Tổng tiền:
+                        <b class="text-danger" th:text="${#numbers.formatInteger(booking.totalPrice, 1, 'POINT') + ' VND'}"></b>
+                    </p>
+
+                    <form th:if="${booking.status.name() == 'PENDING'}"
+                          th:action="@{/booking/{id}/payment/confirm(id=${booking.id})}"
+                          method="post">
+                        <button type="submit" class="btn btn-success w-100">Xác nhận thanh toán</button>
+                    </form>
+
+                    <div th:if="${booking.status.name() != 'PENDING'}" class="alert alert-success mb-0">
+                        Đơn vé đã được thanh toán.
+                    </div>
+
+                    <a th:href="@{/profile}" class="btn btn-secondary w-100 mt-3">Về hồ sơ</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</main>
+</body>
+</html>

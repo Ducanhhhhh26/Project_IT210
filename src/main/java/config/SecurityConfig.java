@@ -18,8 +18,8 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/register", "/login").permitAll()
-                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/staff/**").hasAuthority("ROLE_STAFF")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/staff/**").hasRole("STAFF")
                 .requestMatchers("/booking/**", "/profile/**").authenticated()
                 .anyRequest().permitAll()
             )
@@ -32,6 +32,11 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutSuccessUrl("/")
                 .permitAll()
+            )
+            .exceptionHandling(exception -> exception
+                .accessDeniedHandler((request, response, accessDeniedException) ->
+                    response.sendRedirect("/?error=forbidden")
+                )
             );
         return http.build();
     }

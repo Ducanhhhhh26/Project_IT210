@@ -11,7 +11,7 @@
     <div class="container">
         <a class="navbar-brand font-weight-bold" th:href="@{/}">Smart<span>Cinema</span></a>
         <div class="ms-auto d-flex align-items-center text-white">
-            <span class="me-3">Xin chào, <b sec:authentication="name"></b>!</span>
+            <span class="me-3">Xin chào, <b th:text="${user.fullName ?: user.username}"></b>!</span>
             <form th:action="@{/logout}" method="post">
                 <button class="btn btn-sm btn-danger" type="submit">Đăng xuất</button>
             </form>
@@ -24,14 +24,33 @@
         <section class="col-lg-4">
             <div class="card profile-card">
                 <div class="card-body text-center">
-                    <img th:src="${'https://ui-avatars.com/api/?name=' + user.username + '&background=1f2937&color=ffffff'}" class="rounded-circle mb-3 profile-avatar" width="100" alt="Avatar">
-                    <h4 th:text="${user.username}">Tài khoản</h4>
+                    <img th:src="${'https://ui-avatars.com/api/?name=' + (user.fullName ?: user.username) + '&background=1f2937&color=ffffff'}" class="rounded-circle mb-3 profile-avatar" width="100" alt="Avatar">
+                    <h4 th:text="${user.fullName ?: user.username}">Tài khoản</h4>
                     <p class="text-muted mb-3" th:text="${user.role}">Role</p>
                     <hr>
                     <div class="text-start">
                         <p class="mb-2"><strong>Email:</strong> <span th:text="${user.email}"></span></p>
                         <p class="mb-0"><strong>Số điện thoại:</strong> <span th:text="${user.phone ?: 'Chưa cập nhật'}"></span></p>
                     </div>
+                    <hr>
+                    <form th:action="@{/profile/update}" th:object="${profileForm}" method="post" class="text-start">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label"><strong>Họ tên</strong></label>
+                            <input id="fullName" type="text" class="form-control"
+                                   th:field="*{fullName}"
+                                   th:classappend="${#fields.hasErrors('fullName')} ? ' is-invalid' : ''">
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label"><strong>Số điện thoại</strong></label>
+                            <input id="phone" type="text" class="form-control"
+                                   th:field="*{phone}"
+                                   th:classappend="${#fields.hasErrors('phone')} ? ' is-invalid' : ''"
+                                   placeholder="VD: 0912345678">
+                            <div class="invalid-feedback d-block" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Lưu thông tin</button>
+                    </form>
                 </div>
             </div>
         </section>
@@ -64,7 +83,7 @@
                             <small>
                                 Mã đơn: #<span th:text="${b.bookingId}"></span>
                                 -
-                                Tổng tiền: <b th:text="${b.totalPrice != null ? b.totalPrice + ' VND' : '0 VND'}"></b>
+                                Tong tien: <b th:text="${b.totalPrice != null ? #numbers.formatInteger(b.totalPrice, 1, 'POINT') + ' VND' : '0 VND'}"></b>
                             </small>
 
                             <div class="mt-2 text-end" th:if="${b.cancellable}">

@@ -25,6 +25,13 @@ public class Showtime {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
+    @Column(name = "end_time", nullable = false)
+    private LocalDateTime endTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ShowtimeStatus status = ShowtimeStatus.SCHEDULED;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Movie getMovie() { return movie; }
@@ -33,4 +40,10 @@ public class Showtime {
     public void setRoom(Room room) { this.room = room; }
     public LocalDateTime getStartTime() { return startTime; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public ShowtimeStatus getStatus() { return status; }
+    public void setStatus(ShowtimeStatus status) { this.status = status; }
 }

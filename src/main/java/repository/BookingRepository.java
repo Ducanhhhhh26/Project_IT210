@@ -3,6 +3,7 @@ package repository;
 import model.entity.Booking;
 import model.entity.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,5 +38,20 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         ORDER BY b.createdAt DESC
         """)
     List<Booking> findHistoryByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT b.id FROM Booking b ORDER BY b.createdAt DESC")
+    List<Long> findRecentBookingIds(Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT b FROM Booking b
+        LEFT JOIN FETCH b.tickets t
+        LEFT JOIN FETCH t.showtime st
+        LEFT JOIN FETCH st.movie
+        LEFT JOIN FETCH st.room
+        LEFT JOIN FETCH t.seat
+        WHERE b.id IN :ids
+        ORDER BY b.createdAt DESC
+        """)
+    List<Booking> findByIdsWithTicketsOrderByCreatedAtDesc(@Param("ids") List<Long> ids);
 }
 
