@@ -69,6 +69,7 @@
         </span>
     </div>
 
+
     <section class="row mt-3 movie-grid" th:unless="${#lists.isEmpty(movies)}">
         <div class="col-sm-6 col-lg-3 col-xl-2 mb-4 movie-item"
              th:each="m : ${movies}"
@@ -106,6 +107,45 @@
             </article>
         </div>
     </section>
+<!--    <section class="movie-grid mt-3" th:unless="${#lists.isEmpty(movies)}">-->
+<!--        <div class="row mb-4" th:each="group : ${#lists.partition(movies, 4)}">-->
+<!--            <div class="col-sm-6 col-lg-3 mb-4 movie-item"-->
+<!--                 th:each="m : ${group}"-->
+<!--                 th:data-title="${m.title}"-->
+<!--                 th:data-genre="${m.genre != null ? m.genre.name : 'Unknown'}">-->
+<!--                <article class="card h-100 shadow-sm border-0 movie-card-shell">-->
+<!--                    <div class="movie-poster-wrap">-->
+<!--                    <span class="movie-showtime-badge movie-showtime-badge-active"-->
+<!--                          th:if="${upcomingShowtimeCountByMovie[m.id] != null and upcomingShowtimeCountByMovie[m.id] > 0}"-->
+<!--                          th:text="${'Đang có suất chiếu (' + upcomingShowtimeCountByMovie[m.id] + ' suất)'}">-->
+<!--                        Đang có suất chiếu-->
+<!--                    </span>-->
+<!--                        <span class="movie-showtime-badge movie-showtime-badge-inactive"-->
+<!--                              th:unless="${upcomingShowtimeCountByMovie[m.id] != null and upcomingShowtimeCountByMovie[m.id] > 0}">-->
+<!--                        Chưa có suất chiếu-->
+<!--                    </span>-->
+<!--                        <img th:if="${m.posterUrl != null and !#strings.isEmpty(m.posterUrl)}"-->
+<!--                             th:src="${m.posterUrl}"-->
+<!--                             class="card-img-top movie-poster"-->
+<!--                             th:alt="${m.title}">-->
+<!--                        <div th:unless="${m.posterUrl != null and !#strings.isEmpty(m.posterUrl)}"-->
+<!--                             class="movie-poster-placeholder d-flex align-items-center justify-content-center">-->
+<!--                            Poster-->
+<!--                        </div>-->
+<!--                        <a th:href="@{/movie/{id}/showtimes(id=${m.id})}" class="movie-hover-book">Đặt vé</a>-->
+<!--                    </div>-->
+<!--                    <div class="card-body">-->
+<!--                        <h5 class="card-title text-truncate" th:text="${m.title}">Tên phim</h5>-->
+<!--                        <p class="card-text text-muted small"-->
+<!--                           th:text="${m.duration} + ' phút' + ' | ' + ${m.genre != null ? m.genre.name : 'Unknown'}">-->
+<!--                            120 phút | Thể loại-->
+<!--                        </p>-->
+<!--                        <a th:href="@{/movie/{id}/showtimes(id=${m.id})}" class="movie-book-link">Từ 75.000đ</a>-->
+<!--                    </div>-->
+<!--                </article>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </section>-->
 </main>
 
 <script>

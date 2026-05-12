@@ -53,8 +53,53 @@
                         <button type="submit" class="btn btn-success w-100">Xác nhận thanh toán</button>
                     </form>
 
-                    <div th:if="${booking.status.name() != 'PENDING'}" class="alert alert-success mb-0">
-                        Đơn vé đã được thanh toán.
+                    <div th:if="${booking.status.name() != 'PENDING'}" class="alert alert-success mb-0" id="success-alert">
+                        Đơn vé đã được thanh toán. Thông tin đang được gửi qua email...
+
+                        <!-- Nhúng thư viện EmailJS -->
+                        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+                        <script th:inline="javascript">
+                            /*<![CDATA[*/
+                            (function() {
+                                emailjs.init("hUKSeeh0dXYKRoFmn");
+
+                                const serviceID = 'service_bq78asa';
+                                const templateID = 'template_tsjqkqe'; // Trả lại Template ID gốc khớp với chữ hiển thị trên màn hình emailJS
+
+                                const userData = {
+                                    name: /*[[${booking.user != null ? booking.user.fullName : booking.user.username}]]*/ 'Khách hàng',
+                                    email: /*[[${booking.user != null ? booking.user.email : ''}]]*/ 'khach@gmail.com',
+                                    orderId: /*[[${@bookingService.toBookingCode(booking.id)}]]*/ 'Mã đơn',
+                                    type: /*[[${#lists.isEmpty(booking.tickets) ? 'N/A' : booking.tickets[0].showtime.movie.title}]]*/ 'Tên Phim',
+                                    seats: /*[[${#strings.listJoin(booking.tickets.![seat.seatName], ', ')}]]*/ 'Ghế ngồi',
+                                    time: /*[[${#lists.isEmpty(booking.tickets) ? 'N/A' : #temporals.format(booking.tickets[0].showtime.startTime, 'dd/MM/yyyy HH:mm')}]]*/ 'Thời gian',
+                                    price: /*[[${#numbers.formatInteger(booking.totalPrice, 1, 'POINT') + ' VND'}]]*/ '0 VND'
+                                };
+
+                                const sentFlag = 'email_sent_' + userData.orderId;
+                                if (userData.email && !sessionStorage.getItem(sentFlag)) {
+                                    const templateParams = {
+                                        user_name: userData.name,
+                                        email: userData.email,
+                                        ticket_id: userData.orderId,
+                                        ticket_type: userData.type,
+                                        ticket_seats: userData.seats, // Gửi danh sách ghế lên EmailJS
+                                        appointment_time: userData.time,
+                                        total_price: userData.price
+                                    };
+
+                                    emailjs.send(serviceID, templateID, templateParams)
+                                        .then((response) => {
+                                            console.log('SUCCESS!', response.status, response.text);
+                                            sessionStorage.setItem(sentFlag, 'true');
+                                            document.getElementById('success-alert').innerHTML = 'Gửi email thành công!';
+                                        }, (error) => {
+                                            console.error('FAILED...', error);
+                                        });
+                                }
+                            })();
+                            /*]]>*/
+                        </script>
                     </div>
 
                     <a th:href="@{/profile}" class="btn btn-secondary w-100 mt-3">Về hồ sơ</a>

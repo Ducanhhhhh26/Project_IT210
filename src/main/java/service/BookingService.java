@@ -165,7 +165,9 @@ public class BookingService {
                 throw new Exception("Khong the huy ve khi suat chieu da bat dau hoac da ket thuc");
             }
         }
-
+//     if (LocalDateTime.now().isAfter(startTime.minusHours(24))) {
+//         throw new Exception("Chỉ được hủy vé trước 24h so với giờ chiếu!");
+//     }
         booking.setStatus(BookingStatus.CANCELLED);
         bookingRepository.save(booking);
     }

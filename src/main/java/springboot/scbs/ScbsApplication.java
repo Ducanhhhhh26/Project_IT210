@@ -162,7 +162,7 @@ public class ScbsApplication {
                 }
             }
 
-            seedMovie(movieRepository, "Ke Phan Dien Cuoi Cung", "Mot ke phan dien tim cach viet lai so phan cua minh trong the gioi dien anh.", 126, LocalDate.of(2025, 12, 20), action, "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&h=900&q=85");
+            seedMovie(movieRepository, "Ke P   han Dien Cuoi Cung", "Mot ke phan dien tim cach viet lai so phan cua minh trong the gioi dien anh.", 126, LocalDate.of(2025, 12, 20), action, "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&h=900&q=85");
             seedMovie(movieRepository, "Vu Tru Bong Toi", "Chuyen du hanh xuyen khong gian noi mot phi hanh doan doi mat bi mat ngoai hanh tinh.", 142, LocalDate.of(2026, 1, 10), sciFi, "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=600&h=900&q=85");
             seedMovie(movieRepository, "Mua He Vinh Cuu", "Cau chuyen tinh cam diu dang giua hai nguoi tre gap nhau trong mot mua he kho quen.", 98, LocalDate.of(2025, 9, 5), romance, "https://images.unsplash.com/photo-1529518969858-8baa65152fc8?auto=format&fit=crop&w=600&h=900&q=85");
             seedMovie(movieRepository, "Bong Toi Thuc Day", "Mot can nha cu bi danh thuc boi nhung bi mat kinh hoang trong dem mua.", 105, LocalDate.of(2025, 10, 31), horror, "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=600&h=900&q=85");
